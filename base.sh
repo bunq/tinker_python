@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+# check if stdout is a terminal
+if [ -t 1 ]; then
+    supported_color_count="$(tput colors)"
+
+    if [ -n "$supported_color_count" ] && [ "$supported_color_count" -ge 8 ]; then
+      # All ANSI color / format constants.
+      ANSI_ESCAPE="\033"
+      ANSI_FORMAT_BEGIN="${ANSI_ESCAPE}["
+      ANSI_FORMAT_END="m"
+      ANSI_FORMAT_CLEAR="${ANSI_FORMAT_BEGIN}0${ANSI_FORMAT_END}"
+      ANSI_FORMAT_BRIGHT="${ANSI_FORMAT_BEGIN}1${ANSI_FORMAT_END}"
+      ANSI_FORMAT_DIM="${ANSI_FORMAT_BEGIN}2${ANSI_FORMAT_END}"
+      ANSI_FORMAT_INVERSE="${ANSI_FORMAT_BEGIN}7${ANSI_FORMAT_END}"
+      ANSI_FORMAT_VERBOSE="${ANSI_FORMAT_BRIGHT}${ANSI_FORMAT_INVERSE}"
+      ANSI_FORMAT_COLOR_GREEN_LIGHT="${ANSI_FORMAT_BEGIN}92${ANSI_FORMAT_END}"
+      ANSI_FORMAT_COLOR_YELLOW="${ANSI_FORMAT_BEGIN}93${ANSI_FORMAT_END}"
+      ANSI_FORMAT_COLOR_BLUE_LIGHT="${ANSI_FORMAT_BEGIN}94${ANSI_FORMAT_END}"
+      ANSI_FORMAT_COLOR_CYAN_LIGHT="${ANSI_FORMAT_BEGIN}96${ANSI_FORMAT_END}"
+    fi
+fi

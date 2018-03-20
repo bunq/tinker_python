@@ -1,0 +1,173 @@
+#!/usr/bin/env bash
+
+WORKING_DIR="$(cd `dirname $0`; pwd)"
+SCRIPT_NAME="$(basename $0)"
+source "${WORKING_DIR}/base.sh"
+
+# Header constants.
+HEADER_GO_PRO="${ANSI_FORMAT_COLOR_YELLOW}
+   ██████╗  ██████╗     ██████╗ ██████╗  ██████╗
+  ██╔════╝ ██╔═══██╗    ██╔══██╗██╔══██╗██╔═══██╗
+  ██║  ███╗██║   ██║    ██████╔╝██████╔╝██║   ██║
+  ██║   ██║██║   ██║    ██╔═══╝ ██╔══██╗██║   ██║
+  ╚██████╔╝╚██████╔╝    ██║     ██║  ██║╚██████╔╝
+   ╚═════╝  ╚═════╝     ╚═╝     ╚═╝  ╚═╝ ╚═════╝
+${ANSI_FORMAT_CLEAR}"
+FOOTER_PRODUCTION_READY="${ANSI_FORMAT_COLOR_GREEN_LIGHT}
+   🌈   You're ready to use the PRODUCTION environment.
+${ANSI_FORMAT_CLEAR}"
+
+# Usage constant.
+USAGE="\
+ ┌───────────────────────┬──────────────────────────────────────────────┐
+ │                       │ Run                                          │
+ ├───────────────────────┼──────────────────────────────────────────────┤
+ │ ✅   Show Overview     │ ${ANSI_FORMAT_VERBOSE}tinker/user_overview.py --production${ANSI_FORMAT_CLEAR}         │
+ ├───────────────────────┼──────────────────────────────────────────────┤
+ │ 🔼   Make a payment    │ ${ANSI_FORMAT_VERBOSE}tinker/make_payment.py --production${ANSI_FORMAT_CLEAR}          │
+ │                       │                                              │
+ │                       │  ${ANSI_FORMAT_DIM}Additional parameters:${ANSI_FORMAT_CLEAR}                      │
+ │                       │  ${ANSI_FORMAT_DIM}--amount [euro]${ANSI_FORMAT_CLEAR}                             │
+ │                       │  ${ANSI_FORMAT_DIM}--recipient [email]${ANSI_FORMAT_CLEAR}                         │
+ │                       │  ${ANSI_FORMAT_DIM}--description [string]${ANSI_FORMAT_CLEAR}                      │
+ ├───────────────────────┼──────────────────────────────────────────────┤
+ │ 🔽   Make a request    │ ${ANSI_FORMAT_VERBOSE}tinker/make_request.py --production${ANSI_FORMAT_CLEAR}          │
+ │                       │                                              │
+ │                       │  ${ANSI_FORMAT_DIM}Additional parameters:${ANSI_FORMAT_CLEAR}                      │
+ │                       │  ${ANSI_FORMAT_DIM}--amount [euro]${ANSI_FORMAT_CLEAR}                             │
+ │                       │  ${ANSI_FORMAT_DIM}--recipient [email]${ANSI_FORMAT_CLEAR}                         │
+ │                       │  ${ANSI_FORMAT_DIM}--description [string]${ANSI_FORMAT_CLEAR}                      │
+ ├───────────────────────┼──────────────────────────────────────────────┤
+ │ 🔗   Link Card         │ ${ANSI_FORMAT_VERBOSE}tinker/link_card.py --production${ANSI_FORMAT_CLEAR}             │
+ │                       │                                              │
+ │                       │  ${ANSI_FORMAT_DIM}Additional parameters:${ANSI_FORMAT_CLEAR}                      │
+ │                       │  ${ANSI_FORMAT_DIM}--card-id [id]${ANSI_FORMAT_CLEAR}                              │
+ │                       │  ${ANSI_FORMAT_DIM}--account-id [id]${ANSI_FORMAT_CLEAR}                           │
+ ├───────────────────────┼──────────────────────────────────────────────┤
+ │ ✏️   Update Account    │ ${ANSI_FORMAT_VERBOSE}tinker/update_account.py --production${ANSI_FORMAT_CLEAR}        │
+ │                       │                                              │
+ │                       │  ${ANSI_FORMAT_DIM}Additional parameters:${ANSI_FORMAT_CLEAR}                      │
+ │                       │  ${ANSI_FORMAT_DIM}--account-id [id]${ANSI_FORMAT_CLEAR}                           │
+ │                       │  ${ANSI_FORMAT_DIM}--name [string]${ANSI_FORMAT_CLEAR}                             │
+ ├───────────────────────┼──────────────────────────────────────────────┤
+ │ 📫️   Add Callback Url  │ ${ANSI_FORMAT_VERBOSE}tinker/add_callback_url.py --production${ANSI_FORMAT_CLEAR}      │
+ │                       │                                              │
+ │                       │  ${ANSI_FORMAT_DIM}Additional parameters:${ANSI_FORMAT_CLEAR}                      │
+ │                       │  ${ANSI_FORMAT_DIM}--url [url]${ANSI_FORMAT_CLEAR}                                 │
+ └───────────────────────┴──────────────────────────────────────────────┘
+"
+
+# Endpoint constants.
+API_TINKER='https://api.tinker.bunq.com/v1/'
+
+# Status constants.
+STATUS_CREATED="CREATED"
+STATUS_ACCEPTED="ACCEPTED"
+
+function shouldEnrollProductionUser
+{
+    [ ! -f "${WORKING_DIR}/bunq-production.conf" ] && return 0 || return 1
+}
+
+function enrollProductionUser
+{
+    response="$(createUserCredentialPasswordIpRequest)"
+    publicUuid="$(determineUserCredentialPasswordIpRequestPublicUuidFromResponse ${response})"
+    token="$(determineUserCredentialPasswordIpRequestTokenQrFromResponse ${response})"
+
+    displayTokenQr "${token}"
+    waitForUserCredentialPasswordIpRequestAccepted "${publicUuid}"
+    clearTokenQr "${token}"
+    apiKey="$(getApiKeyFromUserCredentialPasswordIpRequestAccepted "${publicUuid}")"
+    tinker/create_production_configuration.py --api-key "${apiKey}"
+}
+
+function createUserCredentialPasswordIpRequest
+{
+    echo "$(curl -k -s -X POST -H "X-Bunq-Client-Request-Id: unique" ${API_TINKER}/credential-password-ip-request)"
+}
+
+function determineUserCredentialPasswordIpRequestPublicUuidFromResponse
+{
+    echo "$(echo ${1} | jq -r '.Response | .[0].UserCredentialPasswordIpRequest.uuid')"
+}
+
+function determineUserCredentialPasswordIpRequestTokenQrFromResponse
+{
+    echo "$(echo ${1} | jq -r '.Response | .[0].UserCredentialPasswordIpRequest.qr_token')"
+}
+
+function determineUserCredentialPasswordIpRequestStatusFromResponse
+{
+    echo "$(echo ${1} | jq -r '.Response | .[0].UserCredentialPasswordIpRequest.status')"
+}
+
+function determineUserCredentialPasswordIpRequestApiKeyFromResponse
+{
+    echo "$(echo ${1} | jq -r '.Response | .[0].UserCredentialPasswordIpRequest.api_key')"
+}
+
+function displayTokenQr
+{
+    token="${1}"
+    echo -e "$(qrencode --type ANSI256 --margin 1 "18:${token}")"
+    echo ""
+    echo -e "  ${ANSI_FORMAT_COLOR_GREEN_LIGHT}Scan this QR with your bunq app${ANSI_FORMAT_CLEAR}"
+    echo ""
+}
+
+function clearTokenQr
+{
+    token="${1}"
+    countAllLineToClear="$(displayTokenQr "${token}" | wc -l)"
+
+    clearLines "${countAllLineToClear}"
+}
+
+function clearLines
+{
+    countAllLineToClear="${1}"
+
+    seq 1 "${countAllLineToClear}" | while read i; do echo -en "\033[1A\r\033[K"; done
+}
+
+function waitForUserCredentialPasswordIpRequestAccepted
+{
+    uuid="${1}"
+    while ! isUserCredentialPasswordIpRequestAccepted "${uuid}" ; do
+        sleep 1
+    done
+}
+
+function isUserCredentialPasswordIpRequestAccepted
+{
+    uuid="${1}"
+    response="$(curl -k -s -X GET -H "X-Bunq-Client-Request-Id: unique" ${API_TINKER}/credential-password-ip-request/${uuid})"
+    status="$(determineUserCredentialPasswordIpRequestStatusFromResponse "${response}")"
+    if [ "${status}" = "${STATUS_ACCEPTED}" ]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+function getApiKeyFromUserCredentialPasswordIpRequestAccepted
+{
+    uuid="${1}"
+    response="$(curl -k -s -X GET -H "X-Bunq-Client-Request-Id: unique" ${API_TINKER}/credential-password-ip-request/${uuid})"
+    status="$(determineUserCredentialPasswordIpRequestStatusFromResponse "${response}")"
+    echo "$(determineUserCredentialPasswordIpRequestApiKeyFromResponse "${response}")"
+}
+
+echo -e "${HEADER_GO_PRO}"
+
+if shouldEnrollProductionUser; then
+    enrollProductionUser
+else
+    # Already have a production config.
+    :
+fi
+clearLines 1
+echo -e "${FOOTER_PRODUCTION_READY}"
+sleep 1
+echo -e "${USAGE}"
