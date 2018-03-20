@@ -1,6 +1,6 @@
 #!/usr/bin/env .venv/bin/python -W ignore
-from lib.bunq_lib import BunqLib
-from lib.share_lib import ShareLib
+from libs.bunq_lib import BunqLib
+from libs.share_lib import ShareLib
 
 def main():
     all_option = ShareLib.parse_all_option()
