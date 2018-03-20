@@ -26,10 +26,10 @@
         },
         "bunq-sdk": {
             "hashes": [
-                "sha256:2e7205357a81c61e7991dbf4f75ebd175affb63af93ca276f5ea61e14ea02c74"
+                "sha256:c0fd7c73052678c128bdcbbceb85efde62667401cf29ac4f6fe72fa8bc017444"
             ],
             "index": "pypi",
-            "version": "==0.12.4"
+            "version": "==0.13.0"
         },
         "certifi": {
             "hashes": [
