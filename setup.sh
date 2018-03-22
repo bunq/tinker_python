@@ -139,9 +139,8 @@ function determineSedCommand
 
 function cloneTinkerPython
 {
-    git clone https://gitlab.bunq.net/system/tinker_python.git .
-#    git clone https://github.com/bunq/tinker_python.git .
-#    git checkout master
+    git clone https://github.com/bunq/tinker_python.git .
+    git checkout master
 }
 
 function pipenvInstall
