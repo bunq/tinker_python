@@ -1,4 +1,4 @@
-#!/usr/bin/env .venv/bin/python -W ignore
+#!.venv/bin/python -W ignore
 from libs.bunq_lib import BunqLib
 from libs.share_lib import ShareLib
 
