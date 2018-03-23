@@ -1,4 +1,4 @@
-#!/usr/bin/env .venv/bin/python -W ignore
+#!.venv/bin/python -W ignore
 import argparse
 import socket
 
