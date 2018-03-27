@@ -1,5 +1,6 @@
 import json
 from os.path import isfile
+from os import remove
 import socket
 
 import requests
@@ -7,7 +8,7 @@ from bunq.sdk.client import Pagination
 from bunq.sdk.context import ApiContext
 from bunq.sdk.context import ApiEnvironmentType
 from bunq.sdk.context import BunqContext
-from bunq.sdk.exception import BunqException
+from bunq.sdk.exception import BunqException, ForbiddenException
 from bunq.sdk.model.generated import endpoint
 from bunq.sdk.model.generated.object_ import Pointer, Amount, NotificationFilter
 
@@ -21,6 +22,7 @@ class BunqLib(object):
                                       ' file.'
     _ERROR_COULD_NOT_CREATE_NEW_SANDBOX_USER = "Could not create new sandbox" \
                                                " user."
+    _ERROR_INSUFFICIENT_AUTHENTICATION = 'Insufficient authentication'
     _BUNQ_CONF_PRODUCTION = 'bunq-production.conf'
     _BUNQ_CONF_SANDBOX = 'bunq-sandbox.conf'
 
@@ -52,17 +54,28 @@ class BunqLib(object):
         else:
             raise BunqException(self._ERROR_COULD_NOT_DETIRMINE_CONF)
 
-        api_context = ApiContext.restore(self.determine_bunq_conf_filename())
-        api_context.ensure_session_active()
-        api_context.save(self.determine_bunq_conf_filename())
+        try:
+            api_context = ApiContext.restore(self.determine_bunq_conf_filename())
+            api_context.ensure_session_active()
+            api_context.save(self.determine_bunq_conf_filename())
 
-        BunqContext.load_api_context(api_context)
+            BunqContext.load_api_context(api_context)
+        except ForbiddenException as forbidden_exception:
+            self.handle_forbidden_exception(forbidden_exception)
 
     def determine_bunq_conf_filename(self):
         if self.env == ApiEnvironmentType.PRODUCTION:
             return self._BUNQ_CONF_PRODUCTION
         else:
             return self._BUNQ_CONF_SANDBOX
+
+    def handle_forbidden_exception(self, forbidden_exception):
+        if self.env == ApiEnvironmentType.SANDBOX \
+                and self._ERROR_INSUFFICIENT_AUTHENTICATION in forbidden_exception.message:
+            remove(self.determine_bunq_conf_filename())
+            self.setup_context()
+        else:
+            raise forbidden_exception
 
     def setup_current_user(self):
         user = endpoint.User.get().value.get_referenced_object()
