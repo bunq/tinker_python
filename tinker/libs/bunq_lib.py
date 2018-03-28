@@ -1,4 +1,5 @@
 import json
+from re import search
 from os.path import isfile
 from os import remove
 import socket
@@ -8,7 +9,8 @@ from bunq.sdk.client import Pagination
 from bunq.sdk.context import ApiContext
 from bunq.sdk.context import ApiEnvironmentType
 from bunq.sdk.context import BunqContext
-from bunq.sdk.exception import BunqException, ForbiddenException
+from bunq.sdk.exception import BunqException
+from bunq.sdk.exception import ForbiddenException
 from bunq.sdk.model.generated import endpoint
 from bunq.sdk.model.generated.object_ import Pointer, Amount, NotificationFilter
 
@@ -71,7 +73,7 @@ class BunqLib(object):
 
     def handle_forbidden_exception(self, forbidden_exception):
         if self.env == ApiEnvironmentType.SANDBOX \
-                and self._ERROR_INSUFFICIENT_AUTHENTICATION in forbidden_exception.message:
+                and search(self._ERROR_INSUFFICIENT_AUTHENTICATION, forbidden_exception.message) is not None:
             remove(self.determine_bunq_conf_filename())
             self.setup_context()
         else:
