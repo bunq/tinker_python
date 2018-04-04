@@ -45,7 +45,7 @@ class BunqLib(object):
         self.setup_context()
         self.setup_current_user()
 
-    def setup_context(self):
+    def setup_context(self, reset_config_if_needed=True):
         if isfile(self.determine_bunq_conf_filename()):
             pass  # Config is already present
         elif self.env == ApiEnvironmentType.SANDBOX:
@@ -63,7 +63,10 @@ class BunqLib(object):
 
             BunqContext.load_api_context(api_context)
         except ForbiddenException as forbidden_exception:
-            self.handle_forbidden_exception(forbidden_exception)
+            if reset_config_if_needed:
+                self.__handle_forbidden_exception(forbidden_exception)
+            else:
+                raise forbidden_exception
 
     def determine_bunq_conf_filename(self):
         if self.env == ApiEnvironmentType.PRODUCTION:
@@ -71,11 +74,11 @@ class BunqLib(object):
         else:
             return self._BUNQ_CONF_SANDBOX
 
-    def handle_forbidden_exception(self, forbidden_exception):
+    def __handle_forbidden_exception(self, forbidden_exception):
         if self.env == ApiEnvironmentType.SANDBOX \
                 and search(self._ERROR_INSUFFICIENT_AUTHENTICATION, forbidden_exception.message) is not None:
             remove(self.determine_bunq_conf_filename())
-            self.setup_context()
+            self.setup_context(False)
         else:
             raise forbidden_exception
 
@@ -230,7 +233,7 @@ class BunqLib(object):
         :rtype: SandboxUser
         """
 
-        url = "https://sandbox.public.api.bunq.com/v1/sandbox-user"
+        url = ApiEnvironmentType.SANDBOX.uri_base + "sandbox-user"
 
         headers = {
             'x-bunq-client-request-id': "uniqueness-is-required",
