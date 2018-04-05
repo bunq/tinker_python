@@ -24,7 +24,6 @@ class BunqLib(object):
                                       ' file.'
     _ERROR_COULD_NOT_CREATE_NEW_SANDBOX_USER = "Could not create new sandbox" \
                                                " user."
-    _ERROR_INSUFFICIENT_AUTHENTICATION = 'Insufficient authentication'
     _BUNQ_CONF_PRODUCTION = 'bunq-production.conf'
     _BUNQ_CONF_SANDBOX = 'bunq-sandbox.conf'
 
@@ -75,8 +74,7 @@ class BunqLib(object):
             return self._BUNQ_CONF_SANDBOX
 
     def __handle_forbidden_exception(self, forbidden_exception):
-        if self.env == ApiEnvironmentType.SANDBOX \
-                and search(self._ERROR_INSUFFICIENT_AUTHENTICATION, forbidden_exception.message) is not None:
+        if self.env == ApiEnvironmentType.SANDBOX:
             remove(self.determine_bunq_conf_filename())
             self.setup_context(False)
         else:
