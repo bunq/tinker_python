@@ -1,5 +1,7 @@
 import json
+from re import search
 from os.path import isfile
+from os import remove
 import socket
 
 import requests
@@ -8,6 +10,7 @@ from bunq.sdk.context import ApiContext
 from bunq.sdk.context import ApiEnvironmentType
 from bunq.sdk.context import BunqContext
 from bunq.sdk.exception import BunqException
+from bunq.sdk.exception import ForbiddenException
 from bunq.sdk.model.generated import endpoint
 from bunq.sdk.model.generated.object_ import Pointer, Amount, NotificationFilter
 
@@ -41,7 +44,7 @@ class BunqLib(object):
         self.setup_context()
         self.setup_current_user()
 
-    def setup_context(self):
+    def setup_context(self, reset_config_if_needed=True):
         if isfile(self.determine_bunq_conf_filename()):
             pass  # Config is already present
         elif self.env == ApiEnvironmentType.SANDBOX:
@@ -52,17 +55,30 @@ class BunqLib(object):
         else:
             raise BunqException(self._ERROR_COULD_NOT_DETIRMINE_CONF)
 
-        api_context = ApiContext.restore(self.determine_bunq_conf_filename())
-        api_context.ensure_session_active()
-        api_context.save(self.determine_bunq_conf_filename())
+        try:
+            api_context = ApiContext.restore(self.determine_bunq_conf_filename())
+            api_context.ensure_session_active()
+            api_context.save(self.determine_bunq_conf_filename())
 
-        BunqContext.load_api_context(api_context)
+            BunqContext.load_api_context(api_context)
+        except ForbiddenException as forbidden_exception:
+            if reset_config_if_needed:
+                self.__handle_forbidden_exception(forbidden_exception)
+            else:
+                raise forbidden_exception
 
     def determine_bunq_conf_filename(self):
         if self.env == ApiEnvironmentType.PRODUCTION:
             return self._BUNQ_CONF_PRODUCTION
         else:
             return self._BUNQ_CONF_SANDBOX
+
+    def __handle_forbidden_exception(self, forbidden_exception):
+        if self.env == ApiEnvironmentType.SANDBOX:
+            remove(self.determine_bunq_conf_filename())
+            self.setup_context(False)
+        else:
+            raise forbidden_exception
 
     def setup_current_user(self):
         user = endpoint.User.get().value.get_referenced_object()
@@ -215,7 +231,7 @@ class BunqLib(object):
         :rtype: SandboxUser
         """
 
-        url = "https://sandbox.public.api.bunq.com/v1/sandbox-user"
+        url = ApiEnvironmentType.SANDBOX.uri_base + "sandbox-user"
 
         headers = {
             'x-bunq-client-request-id': "uniqueness-is-required",
