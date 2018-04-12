@@ -1,6 +1,7 @@
 import json
 from os.path import isfile
 import socket
+from time import sleep
 
 import requests
 from bunq.sdk.client import Pagination
@@ -35,6 +36,7 @@ class BunqLib(object):
     _REQUEST_SPENDING_MONEY_AMOUNT = '500.0'
     _REQUEST_SPENDING_MONEY_RECIPIENT = 'sugardaddy@bunq.com'
     _REQUEST_SPENDING_MONEY_DESCRIPTION = 'Requesting some spending money.'
+    _REQUEST_SPENDING_MONEY_WAIT_TIME_SECONDS = 1
 
     _ZERO_BALANCE = 0.0
 
@@ -47,7 +49,7 @@ class BunqLib(object):
         self.env = env
         self.setup_context()
         self.setup_current_user()
-        self.request_spending_money_if_needed()
+        self.__request_spending_money_if_needed()
 
     def setup_context(self):
         if isfile(self.determine_bunq_conf_filename()):
@@ -242,12 +244,17 @@ class BunqLib(object):
 
         raise BunqException(self._ERROR_COULD_NOT_CREATE_NEW_SANDBOX_USER)
 
-    def request_spending_money_if_needed(self):
-        if self.env == ApiEnvironmentType.SANDBOX \
-                and float(BunqContext.user_context().primary_monetary_account.balance.value) <= self._ZERO_BALANCE:
+    def __request_spending_money_if_needed(self):
+        if self.__should_request_spending_money():
             endpoint.RequestInquiry.create(
                 amount_inquired=Amount(self._REQUEST_SPENDING_MONEY_AMOUNT, self._CURRENCY_EUR),
                 counterparty_alias=Pointer(self._POINTER_TYPE_EMAIL, self._REQUEST_SPENDING_MONEY_RECIPIENT),
                 description=self._REQUEST_SPENDING_MONEY_DESCRIPTION,
                 allow_bunqme=False
             )
+            sleep(self._REQUEST_SPENDING_MONEY_WAIT_TIME_SECONDS)
+            BunqContext.user_context().refresh_user_context()
+
+    def __should_request_spending_money(self):
+        return self.env == ApiEnvironmentType.SANDBOX \
+                and float(BunqContext.user_context().primary_monetary_account.balance.value) <= self._ZERO_BALANCE
