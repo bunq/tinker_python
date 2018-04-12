@@ -3,6 +3,7 @@ from re import search
 from os.path import isfile
 from os import remove
 import socket
+from time import sleep
 
 import requests
 from bunq.sdk.client import Pagination
@@ -13,6 +14,7 @@ from bunq.sdk.exception import BunqException
 from bunq.sdk.exception import ForbiddenException
 from bunq.sdk.model.generated import endpoint
 from bunq.sdk.model.generated.object_ import Pointer, Amount, NotificationFilter
+
 
 NOTIFICATION_DELIVERY_METHOD_URL = 'URL'
 
@@ -31,8 +33,15 @@ class BunqLib(object):
 
     _DEFAULT_COUNT = 10
     _POINTER_TYPE_EMAIL = 'EMAIL'
-    _CURRENCY_EURL = 'EUR'
+    _CURRENCY_EUR = 'EUR'
     _DEVICE_DESCRIPTION = "python tinker"
+
+    _REQUEST_SPENDING_MONEY_AMOUNT = '500.0'
+    _REQUEST_SPENDING_MONEY_RECIPIENT = 'sugardaddy@bunq.com'
+    _REQUEST_SPENDING_MONEY_DESCRIPTION = 'Requesting some spending money.'
+    _REQUEST_SPENDING_MONEY_WAIT_TIME_SECONDS = 1
+
+    _ZERO_BALANCE = 0.0
 
     def __init__(self, env):
         """
@@ -43,6 +52,7 @@ class BunqLib(object):
         self.env = env
         self.setup_context()
         self.setup_current_user()
+        self.__request_spending_money_if_needed()
 
     def setup_context(self, reset_config_if_needed=True):
         if isfile(self.determine_bunq_conf_filename()):
@@ -161,7 +171,7 @@ class BunqLib(object):
         """
 
         endpoint.Payment.create(
-            amount=Amount(amount_string, self._CURRENCY_EURL),
+            amount=Amount(amount_string, self._CURRENCY_EUR),
             counterparty_alias=Pointer(self._POINTER_TYPE_EMAIL, recipient),
             description=description
         )
@@ -174,7 +184,7 @@ class BunqLib(object):
         """
 
         endpoint.RequestInquiry.create(
-            amount_inquired=Amount(amount_string, self._CURRENCY_EURL),
+            amount_inquired=Amount(amount_string, self._CURRENCY_EUR),
             counterparty_alias=Pointer(self._POINTER_TYPE_EMAIL, recipient),
             description=description,
             allow_bunqme=True
@@ -249,3 +259,17 @@ class BunqLib(object):
                 json.dumps(response_json["Response"][0]["ApiKey"]))
 
         raise BunqException(self._ERROR_COULD_NOT_CREATE_NEW_SANDBOX_USER)
+
+    def __request_spending_money_if_needed(self):
+        if self.__should_request_spending_money():
+            endpoint.RequestInquiry.create(
+                amount_inquired=Amount(self._REQUEST_SPENDING_MONEY_AMOUNT, self._CURRENCY_EUR),
+                counterparty_alias=Pointer(self._POINTER_TYPE_EMAIL, self._REQUEST_SPENDING_MONEY_RECIPIENT),
+                description=self._REQUEST_SPENDING_MONEY_DESCRIPTION,
+                allow_bunqme=False
+            )
+            sleep(self._REQUEST_SPENDING_MONEY_WAIT_TIME_SECONDS)
+
+    def __should_request_spending_money(self):
+        return self.env == ApiEnvironmentType.SANDBOX \
+                and float(BunqContext.user_context().primary_monetary_account.balance.value) <= self._ZERO_BALANCE
