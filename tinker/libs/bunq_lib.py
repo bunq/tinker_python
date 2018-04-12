@@ -253,7 +253,6 @@ class BunqLib(object):
                 allow_bunqme=False
             )
             sleep(self._REQUEST_SPENDING_MONEY_WAIT_TIME_SECONDS)
-            BunqContext.user_context().refresh_user_context()
 
     def __should_request_spending_money(self):
         return self.env == ApiEnvironmentType.SANDBOX \
