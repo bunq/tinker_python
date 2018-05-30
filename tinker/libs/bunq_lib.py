@@ -215,7 +215,7 @@ class BunqLib(object):
         :rtype: SandboxUser
         """
 
-        url = "https://sandbox.public.api.bunq.com/v1/sandbox-user"
+        url = "https://public-api.sandbox.bunq.com/v1/sandbox-user"
 
         headers = {
             'x-bunq-client-request-id': "uniqueness-is-required",
