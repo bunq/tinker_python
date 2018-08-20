@@ -13,7 +13,10 @@ from bunq.sdk.context import BunqContext
 from bunq.sdk.exception import BunqException
 from bunq.sdk.exception import ForbiddenException
 from bunq.sdk.model.generated import endpoint
-from bunq.sdk.model.generated.object_ import Pointer, Amount, NotificationFilter
+from bunq.sdk.model.generated.object_ import Pointer
+from bunq.sdk.model.generated.object_ import Amount
+from bunq.sdk.model.generated.object_ import NotificationFilter
+from bunq.sdk.model.generated.object_ import CardPinAssignment
 
 
 NOTIFICATION_DELIVERY_METHOD_URL = 'URL'
@@ -196,8 +199,15 @@ class BunqLib(object):
         :type account_id: int
         """
 
-        endpoint.Card.update(card_id=int(card_id),
-                             monetary_account_current_id=int(account_id))
+        endpoint.Card.update(
+            card_id=int(card_id),
+            pin_code_assignment=[
+                CardPinAssignment(
+                    type_='PRIMARY',
+                    monetary_account_id=int(account_id)
+                )
+            ]
+        )
 
     def add_callback_url(self, callback_url):
         """
