@@ -16,42 +16,42 @@ ${ANSI_FORMAT_CLEAR}${ANSI_FORMAT_COLOR_CYAN_LIGHT}
 ${ANSI_FORMAT_CLEAR}"
 
 USAGE="\
- ┌───────────────────────┬────────────────────────────────────────────────────────────────────────────┐
- │                       │ Run                                                                        │
- ├───────────────────────┼────────────────────────────────────────────────────────────────────────────┤
- │ ✅   Show Overview    │ ${ANSI_FORMAT_VERBOSE}tinker/user_overview.py${ANSI_FORMAT_CLEAR}          │
- ├───────────────────────┼────────────────────────────────────────────────────────────────────────────┤
- │ 🔼   Make a payment   │ ${ANSI_FORMAT_VERBOSE}tinker/make_payment.py${ANSI_FORMAT_CLEAR}           │
- │                       │                                                                            │
- │                       │  ${ANSI_FORMAT_DIM}Additional parameters:${ANSI_FORMAT_CLEAR}              │
- │                       │  ${ANSI_FORMAT_DIM}--amount [euro]${ANSI_FORMAT_CLEAR}                     │
- │                       │  ${ANSI_FORMAT_DIM}--recipient [email]${ANSI_FORMAT_CLEAR}                 │
- │                       │  ${ANSI_FORMAT_DIM}--description [string]${ANSI_FORMAT_CLEAR}              │
- ├───────────────────────┼────────────────────────────────────────────────────────────────────────────┤
- │ 🔽   Make a request   │ ${ANSI_FORMAT_VERBOSE}tinker/make_request.py${ANSI_FORMAT_CLEAR}           │
- │                       │                                                                            │
- │                       │  ${ANSI_FORMAT_DIM}Additional parameters:${ANSI_FORMAT_CLEAR}              │
- │                       │  ${ANSI_FORMAT_DIM}--amount [euro]${ANSI_FORMAT_CLEAR}                     │
- │                       │  ${ANSI_FORMAT_DIM}--recipient [email]${ANSI_FORMAT_CLEAR}                 │
- │                       │  ${ANSI_FORMAT_DIM}--description [string]${ANSI_FORMAT_CLEAR}              │
- ├───────────────────────┼────────────────────────────────────────────────────────────────────────────┤
- │ 🔗   Link Card        │ ${ANSI_FORMAT_VERBOSE}tinker/link_card.py${ANSI_FORMAT_CLEAR}              │
- │                       │                                                                            │
- │                       │  ${ANSI_FORMAT_DIM}Additional parameters:${ANSI_FORMAT_CLEAR}              │
- │                       │  ${ANSI_FORMAT_DIM}--card-id [id]${ANSI_FORMAT_CLEAR}                      │
- │                       │  ${ANSI_FORMAT_DIM}--account-id [id]${ANSI_FORMAT_CLEAR}                   │
- ├───────────────────────┼────────────────────────────────────────────────────────────────────────────┤
- │ ✏️   Update Account    │ ${ANSI_FORMAT_VERBOSE}tinker/update_account.py${ANSI_FORMAT_CLEAR}         │
- │                       │                                                                            │
- │                       │  ${ANSI_FORMAT_DIM}Additional parameters:${ANSI_FORMAT_CLEAR}              │
- │                       │  ${ANSI_FORMAT_DIM}--account-id [id]${ANSI_FORMAT_CLEAR}                   │
- │                       │  ${ANSI_FORMAT_DIM}--name [string]${ANSI_FORMAT_CLEAR}                     │
- ├───────────────────────┼────────────────────────────────────────────────────────────────────────────┤
- │ 📫️   Add Callback Url │ ${ANSI_FORMAT_VERBOSE}tinker/add_callback_url.py${ANSI_FORMAT_CLEAR}       │
- │                       │                                                                            │
- │                       │  ${ANSI_FORMAT_DIM}Additional parameters:${ANSI_FORMAT_CLEAR}              │
- │                       │  ${ANSI_FORMAT_DIM}--url [url]${ANSI_FORMAT_CLEAR}                         │
- └───────────────────────┴────────────────────────────────────────────────────────────────────────────┘
+ ┌───────────────────────┬────────────────────────────┐
+ │                       │ Run                        │
+ ├───────────────────────┼────────────────────────────┤
+ │ ✅   Show Overview    │ ${ANSI_FORMAT_VERBOSE}tinker/user_overview.py${ANSI_FORMAT_CLEAR}    │
+ ├───────────────────────┼────────────────────────────┤
+ │ 🔼   Make a payment   │ ${ANSI_FORMAT_VERBOSE}tinker/make_payment.py${ANSI_FORMAT_CLEAR}     │
+ │                       │                            │
+ │                       │  ${ANSI_FORMAT_DIM}Additional parameters:${ANSI_FORMAT_CLEAR}    │
+ │                       │  ${ANSI_FORMAT_DIM}--amount [euro]${ANSI_FORMAT_CLEAR}           │
+ │                       │  ${ANSI_FORMAT_DIM}--recipient [email]${ANSI_FORMAT_CLEAR}       │
+ │                       │  ${ANSI_FORMAT_DIM}--description [string]${ANSI_FORMAT_CLEAR}    │
+ ├───────────────────────┼────────────────────────────┤
+ │ 🔽   Make a request   │ ${ANSI_FORMAT_VERBOSE}tinker/make_request.py${ANSI_FORMAT_CLEAR}     │
+ │                       │                            │
+ │                       │  ${ANSI_FORMAT_DIM}Additional parameters:${ANSI_FORMAT_CLEAR}    │
+ │                       │  ${ANSI_FORMAT_DIM}--amount [euro]${ANSI_FORMAT_CLEAR}           │
+ │                       │  ${ANSI_FORMAT_DIM}--recipient [email]${ANSI_FORMAT_CLEAR}       │
+ │                       │  ${ANSI_FORMAT_DIM}--description [string]${ANSI_FORMAT_CLEAR}    │
+ ├───────────────────────┼────────────────────────────┤
+ │ 🔗   Link Card        │ ${ANSI_FORMAT_VERBOSE}tinker/link_card.py${ANSI_FORMAT_CLEAR}        │
+ │                       │                            │
+ │                       │  ${ANSI_FORMAT_DIM}Additional parameters:${ANSI_FORMAT_CLEAR}    │
+ │                       │  ${ANSI_FORMAT_DIM}--card-id [id]${ANSI_FORMAT_CLEAR}            │
+ │                       │  ${ANSI_FORMAT_DIM}--account-id [id]${ANSI_FORMAT_CLEAR}         │
+ ├───────────────────────┼────────────────────────────┤
+ │ ✏️   Update Account    │ ${ANSI_FORMAT_VERBOSE}tinker/update_account.py${ANSI_FORMAT_CLEAR}   │
+ │                       │                            │
+ │                       │  ${ANSI_FORMAT_DIM}Additional parameters:${ANSI_FORMAT_CLEAR}    │
+ │                       │  ${ANSI_FORMAT_DIM}--account-id [id]${ANSI_FORMAT_CLEAR}         │
+ │                       │  ${ANSI_FORMAT_DIM}--name [string]${ANSI_FORMAT_CLEAR}           │
+ ├───────────────────────┼────────────────────────────┤
+ │ 📫️   Add Callback Url │ ${ANSI_FORMAT_VERBOSE}tinker/add_callback_url.py${ANSI_FORMAT_CLEAR} │
+ │                       │                            │
+ │                       │  ${ANSI_FORMAT_DIM}Additional parameters:${ANSI_FORMAT_CLEAR}    │
+ │                       │  ${ANSI_FORMAT_DIM}--url [url]${ANSI_FORMAT_CLEAR}               │
+ └───────────────────────┴────────────────────────────┘
 
   Check out the Source files and tinker with them!
 
