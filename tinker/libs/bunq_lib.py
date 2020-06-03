@@ -1,8 +1,7 @@
 import json
-from re import search
-from os.path import isfile
-from os import remove
 import socket
+from os import remove
+from os.path import isfile
 from time import sleep
 
 import requests
@@ -13,11 +12,10 @@ from bunq.sdk.context import BunqContext
 from bunq.sdk.exception import BunqException
 from bunq.sdk.exception import ForbiddenException
 from bunq.sdk.model.generated import endpoint
-from bunq.sdk.model.generated.object_ import Pointer
 from bunq.sdk.model.generated.object_ import Amount
-from bunq.sdk.model.generated.object_ import NotificationFilter
 from bunq.sdk.model.generated.object_ import CardPinAssignment
-
+from bunq.sdk.model.generated.object_ import NotificationFilter
+from bunq.sdk.model.generated.object_ import Pointer
 
 NOTIFICATION_DELIVERY_METHOD_URL = 'URL'
 
@@ -282,4 +280,4 @@ class BunqLib(object):
 
     def __should_request_spending_money(self):
         return self.env == ApiEnvironmentType.SANDBOX \
-                and float(BunqContext.user_context().primary_monetary_account.balance.value) <= self._ZERO_BALANCE
+               and float(BunqContext.user_context().primary_monetary_account.balance.value) <= self._ZERO_BALANCE
