@@ -25,7 +25,7 @@ NOTIFICATION_CATEGORY_MUTATION = 'MUTATION'
 
 
 class BunqLib(object):
-    _ERROR_COULD_NOT_DETIRMINE_CONF = 'Could not find the bunq configuration' \
+    _ERROR_COULD_NOT_DETERMINE_CONF = 'Could not find the bunq configuration' \
                                       ' file.'
     _ERROR_COULD_NOT_CREATE_NEW_SANDBOX_USER = "Could not create new sandbox" \
                                                " user."
@@ -66,7 +66,7 @@ class BunqLib(object):
                        socket.gethostname()).save(
                 self.determine_bunq_conf_filename())
         else:
-            raise BunqException(self._ERROR_COULD_NOT_DETIRMINE_CONF)
+            raise BunqException(self._ERROR_COULD_NOT_DETERMINE_CONF)
 
         try:
             api_context = ApiContext.restore(self.determine_bunq_conf_filename())
@@ -251,7 +251,7 @@ class BunqLib(object):
         :rtype: SandboxUser
         """
 
-        url = ApiEnvironmentType.SANDBOX.uri_base + "sandbox-user"
+        url = ApiEnvironmentType.SANDBOX.uri_base + "sandbox-user-person"
 
         headers = {
             'x-bunq-client-request-id': "uniqueness-is-required",
