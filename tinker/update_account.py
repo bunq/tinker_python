@@ -1,6 +1,7 @@
 #!.venv/bin/python -W ignore
-from libs.bunq_lib import BunqLib
-from libs.share_lib import ShareLib
+from tinker.libs.bunq_lib import BunqLib
+from tinker.libs.share_lib import ShareLib
+
 
 def main():
     all_option = ShareLib.parse_all_option()
@@ -20,7 +21,7 @@ def main():
     ...
 ''')
 
-    bunq.update_account(name, account_id)
+    bunq.update_account(name, int(account_id))
 
     print('''
   | ✅  Account updated
@@ -30,6 +31,7 @@ def main():
 ''')
 
     bunq.update_context()
+
 
 if __name__ == '__main__':
     main()

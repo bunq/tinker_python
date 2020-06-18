@@ -2,9 +2,9 @@
 import argparse
 import socket
 
-from bunq.sdk.context import ApiContext
-from bunq.sdk.context import ApiEnvironmentType
-from bunq.sdk.exception import BunqException
+from bunq import ApiEnvironmentType
+from bunq.sdk.context.api_context import ApiContext
+from bunq.sdk.exception.bunq_exception import BunqException
 
 # Option constants.
 OPTION_API_KEY = '--api-key'
@@ -24,7 +24,7 @@ def main():
     if all_option.api_key is None:
         raise BunqException(ERROR_OPTION_MISSING_API_KEY)
 
-    api_context = ApiContext(ApiEnvironmentType.PRODUCTION, all_option.api_key, socket.gethostname())
+    api_context = ApiContext.create(ApiEnvironmentType.PRODUCTION, all_option.api_key, socket.gethostname())
     api_context.save(DEFAULT_BUNQ_CONFIGURATION_FILE_NAME_PRODUCTION)
 
 

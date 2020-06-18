@@ -1,6 +1,7 @@
 #!.venv/bin/python -W ignore
-from libs.bunq_lib import BunqLib
-from libs.share_lib import ShareLib
+from tinker.libs.bunq_lib import BunqLib
+from tinker.libs.share_lib import ShareLib
+
 
 def main():
     all_option = ShareLib.parse_all_option()
@@ -20,7 +21,7 @@ def main():
     ...
 ''')
 
-    bunq.link_card(card_id, account_id)
+    bunq.link_card(int(card_id), int(account_id))
 
     print('''
   | ✅  Account switched
@@ -30,6 +31,7 @@ def main():
 ''')
 
     bunq.update_context()
+
 
 if __name__ == '__main__':
     main()

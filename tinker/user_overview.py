@@ -1,7 +1,8 @@
 #!.venv/bin/python -W ignore
-from libs.bunq_lib import BunqLib
-from libs.share_lib import ShareLib
-from bunq.sdk.context import ApiEnvironmentType
+from bunq import ApiEnvironmentType
+
+from tinker.libs.bunq_lib import BunqLib
+from tinker.libs.share_lib import ShareLib
 
 
 def main():
@@ -41,6 +42,7 @@ def main():
 
 
 """)
+
 
 if __name__ == '__main__':
     main()
