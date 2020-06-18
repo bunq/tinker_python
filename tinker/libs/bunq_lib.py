@@ -3,18 +3,19 @@ import socket
 from os import remove
 from os.path import isfile
 from time import sleep
+from typing import Union, List
 
 import requests
-from bunq.sdk.client import Pagination
-from bunq.sdk.context import ApiContext
-from bunq.sdk.context import ApiEnvironmentType
-from bunq.sdk.context import BunqContext
-from bunq.sdk.exception import BunqException
-from bunq.sdk.exception import ForbiddenException
-from bunq.sdk.model.generated import endpoint
-from bunq.sdk.model.generated.object_ import Amount
+from bunq import ApiEnvironmentType, Pagination
+from bunq.sdk.context.api_context import ApiContext
+from bunq.sdk.context.bunq_context import BunqContext
+from bunq.sdk.exception.bunq_exception import BunqException
+from bunq.sdk.exception.forbidden_exception import ForbiddenException
+from bunq.sdk.model.core.notification_filter_url_user_internal import NotificationFilterUrlUserInternal
+from bunq.sdk.model.generated.endpoint import UserCompany, UserPerson, MonetaryAccountBank, UserLight, User, Payment, \
+    RequestInquiry, Card, NotificationFilterUrlUser, SandboxUser
+from bunq.sdk.model.generated.object_ import Amount, NotificationFilterUrl
 from bunq.sdk.model.generated.object_ import CardPinAssignment
-from bunq.sdk.model.generated.object_ import NotificationFilter
 from bunq.sdk.model.generated.object_ import Pointer
 
 NOTIFICATION_DELIVERY_METHOD_URL = 'URL'
@@ -32,6 +33,8 @@ class BunqLib(object):
 
     _MONETARY_ACCOUNT_STATUS_ACTIVE = 'ACTIVE'
 
+    _CARD_PIN_ASSIGNMENT_TYPE = 'PRIMARY'
+
     _DEFAULT_COUNT = 10
     _POINTER_TYPE_EMAIL = 'EMAIL'
     _CURRENCY_EUR = 'EUR'
@@ -44,11 +47,7 @@ class BunqLib(object):
 
     _ZERO_BALANCE = 0.0
 
-    def __init__(self, env):
-        """
-        :type env: ApiEnvironmentType
-        """
-
+    def __init__(self, env: ApiEnvironmentType):
         self.user = None
         self.env = env
         self.setup_context()
@@ -60,9 +59,10 @@ class BunqLib(object):
             pass  # Config is already present
         elif self.env == ApiEnvironmentType.SANDBOX:
             sandbox_user = self.generate_new_sandbox_user()
-            ApiContext(ApiEnvironmentType.SANDBOX, sandbox_user.api_key,
-                       socket.gethostname()).save(
-                self.determine_bunq_conf_filename())
+            ApiContext.create(ApiEnvironmentType.SANDBOX,
+                              sandbox_user.api_key,
+                              socket.gethostname()
+                              ).save(self.determine_bunq_conf_filename())
         else:
             raise BunqException(self._ERROR_COULD_NOT_DETERMINE_CONF)
 
@@ -92,33 +92,25 @@ class BunqLib(object):
             raise forbidden_exception
 
     def setup_current_user(self):
-        user = endpoint.User.get().value.get_referenced_object()
-        if (isinstance(user, endpoint.UserPerson)
-                or isinstance(user, endpoint.UserCompany)
-                or isinstance(user, endpoint.UserLight)
+        user = User.get().value.get_referenced_object()
+        if (
+                isinstance(user, UserPerson) or
+                isinstance(user, UserCompany) or
+                isinstance(user, UserLight)
         ):
             self.user = user
 
     def update_context(self):
         BunqContext.api_context().save(self.determine_bunq_conf_filename())
 
-    def get_current_user(self):
-        """
-        :rtype: UserCompany|UserPerson
-        """
-
+    def get_current_user(self) -> Union[UserCompany, UserPerson]:
         return self.user
 
-    def get_all_monetary_account_active(self, count=_DEFAULT_COUNT):
-        """
-        :type count: int
-        :rtype: list[endpoint.MonetaryAccountBank]
-        """
-
+    def get_all_monetary_account_active(self, count: int = _DEFAULT_COUNT) -> List[MonetaryAccountBank]:
         pagination = Pagination()
         pagination.count = count
 
-        all_monetary_account_bank = endpoint.MonetaryAccountBank.list(
+        all_monetary_account_bank = MonetaryAccountBank.list(
             pagination.url_params_count_only).value
         all_monetary_account_bank_active = []
 
@@ -129,126 +121,72 @@ class BunqLib(object):
 
         return all_monetary_account_bank_active
 
-    def get_all_payment(self, count=_DEFAULT_COUNT):
-        """
-        :type count: int
-        :rtype: list[Payment]
-        """
-
+    def get_all_payment(self, count: int = _DEFAULT_COUNT) -> List[Payment]:
         pagination = Pagination()
         pagination.count = count
 
-        return endpoint.Payment.list(
-            params=pagination.url_params_count_only).value
+        return Payment.list(params=pagination.url_params_count_only).value
 
-    def get_all_request(self, count=_DEFAULT_COUNT):
-        """
-        :type count: int
-        :rtype: list[endpoint.RequestInquiry]
-        """
-
+    def get_all_request(self, count: int = _DEFAULT_COUNT) -> List[RequestInquiry]:
         pagination = Pagination()
         pagination.count = count
 
-        return endpoint.RequestInquiry.list(
-            params=pagination.url_params_count_only).value
+        return RequestInquiry.list(params=pagination.url_params_count_only).value
 
-    def get_all_card(self, count=_DEFAULT_COUNT):
-        """
-        :type count: int
-        :rtype: list(endpoint.Card)
-        """
-
+    def get_all_card(self, count: int = _DEFAULT_COUNT) -> List[Card]:
         pagination = Pagination()
         pagination.count = count
 
-        return endpoint.Card.list(pagination.url_params_count_only).value
+        return Card.list(pagination.url_params_count_only).value
 
-    def make_payment(self, amount_string, description, recipient):
-        """
-        :type amount_string: str
-        :type description: str
-        :type recipient: str
-        """
-
-        endpoint.Payment.create(
+    def make_payment(self, amount_string: str, description: str, recipient: str):
+        Payment.create(
             amount=Amount(amount_string, self._CURRENCY_EUR),
             counterparty_alias=Pointer(self._POINTER_TYPE_EMAIL, recipient),
             description=description
         )
 
-    def make_request(self, amount_string, description, recipient):
-        """
-        :type amount_string: str
-        :type description: str
-        :type recipient: str
-        """
-
-        endpoint.RequestInquiry.create(
+    def make_request(self, amount_string: str, description: str, recipient: str):
+        RequestInquiry.create(
             amount_inquired=Amount(amount_string, self._CURRENCY_EUR),
             counterparty_alias=Pointer(self._POINTER_TYPE_EMAIL, recipient),
             description=description,
             allow_bunqme=True
         )
 
-    def link_card(self, card_id, account_id):
-        """
-        :type card_id: int
-        :type account_id: int
-        """
-
-        endpoint.Card.update(
-            card_id=int(card_id),
+    def link_card(self, card_id: int, account_id: int):
+        Card.update(
+            card_id=card_id,
             pin_code_assignment=[
                 CardPinAssignment(
-                    type_='PRIMARY',
-                    monetary_account_id=int(account_id)
+                    type_=self._CARD_PIN_ASSIGNMENT_TYPE,
+                    monetary_account_id=account_id
                 )
             ]
         )
 
-    def add_callback_url(self, callback_url):
-        """
-        :type callback_url: str
-        """
-
-        all_notification_filter_current = \
-            self.get_current_user().notification_filters
+    def add_callback_url(self, callback_url: str):
+        all_notification_filter_current = NotificationFilterUrlUser.list().value
         all_notification_filter_updated = []
 
-        for notification_filter in all_notification_filter_current:
-            if notification_filter.notification_target == callback_url:
-                all_notification_filter_updated.append(notification_filter)
+        for notification_filter_url_user in all_notification_filter_current:
+            for notification_filter_url in notification_filter_url_user.notification_filters:
+                if callback_url == notification_filter_url.notification_target:
+                    all_notification_filter_updated.append(notification_filter_url)
 
         all_notification_filter_updated.append(
-            NotificationFilter(NOTIFICATION_DELIVERY_METHOD_URL, callback_url,
-                               NOTIFICATION_CATEGORY_MUTATION)
+            NotificationFilterUrl(NOTIFICATION_CATEGORY_MUTATION, callback_url)
         )
 
-        self.get_current_user().update(
-            notification_filters=all_notification_filter_updated)
+        NotificationFilterUrlUserInternal.create_with_list_response(all_notification_filter_updated)
 
-    def update_account(self, name, account_id):
-        """
-        :type name: str
-        :type account_id: int
-        """
+    def update_account(self, name: str, account_id: int):
+        MonetaryAccountBank.update(monetary_account_bank_id=account_id, description=name)
 
-        endpoint.MonetaryAccountBank.update(monetary_account_bank_id=account_id,
-                                            description=name)
-
-    def get_all_user_alias(self):
-        """
-        :rtype: list[Pointer]
-        """
-
+    def get_all_user_alias(self) -> List[Pointer]:
         return self.get_current_user().alias
 
-    def generate_new_sandbox_user(self):
-        """
-        :rtype: SandboxUser
-        """
-
+    def generate_new_sandbox_user(self) -> SandboxUser: # TODO: Change this to relevant SandboxUserPerson/Company on SDK V1.14.x
         url = ApiEnvironmentType.SANDBOX.uri_base + "sandbox-user-person"
 
         headers = {
@@ -263,14 +201,14 @@ class BunqLib(object):
 
         if response.status_code is 200:
             response_json = json.loads(response.text)
-            return endpoint.SandboxUser.from_json(
+            return SandboxUser.from_json(
                 json.dumps(response_json["Response"][0]["ApiKey"]))
 
         raise BunqException(self._ERROR_COULD_NOT_CREATE_NEW_SANDBOX_USER)
 
     def __request_spending_money_if_needed(self):
         if self.__should_request_spending_money():
-            endpoint.RequestInquiry.create(
+            RequestInquiry.create(
                 amount_inquired=Amount(self._REQUEST_SPENDING_MONEY_AMOUNT, self._CURRENCY_EUR),
                 counterparty_alias=Pointer(self._POINTER_TYPE_EMAIL, self._REQUEST_SPENDING_MONEY_RECIPIENT),
                 description=self._REQUEST_SPENDING_MONEY_DESCRIPTION,
