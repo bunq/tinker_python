@@ -1,6 +1,6 @@
 #!.venv/bin/python -W ignore
-from tinker.libs.bunq_lib import BunqLib
-from tinker.libs.share_lib import ShareLib
+from libs.bunq_lib import BunqLib
+from libs.share_lib import ShareLib
 
 
 def main():
