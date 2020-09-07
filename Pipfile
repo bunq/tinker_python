@@ -4,9 +4,9 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-bunq-sdk = "==1.13.1"
+bunq-sdk = "==1.14.1"
 
 [dev-packages]
 
 [requires]
-python_version = "3.6"
+python_version = "3.7"
