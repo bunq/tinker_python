@@ -20,6 +20,8 @@ class ShareLib(object):
     _OPTION_ACCOUNT_ID = '--account-id'
     _OPTION_CALLBACK_URL = '--callback-url'
     _OPTION_NAME = '--name'
+    _OPTION_CONTEXT = '--context'
+    _OPTION_REDIRECT_URI = '--redirect'
 
     _ECHO_USER = os.linesep + '   User'
     _ECHO_MONETARY_ACCOUNT = os.linesep + '   Monetary Accounts'
@@ -54,6 +56,9 @@ class ShareLib(object):
         parser.add_argument(cls._OPTION_ACCOUNT_ID)
         parser.add_argument(cls._OPTION_CALLBACK_URL)
         parser.add_argument(cls._OPTION_NAME)
+        parser.add_argument(cls._OPTION_CONTEXT)
+        parser.add_argument(cls._OPTION_REDIRECT_URI)
+
         return parser.parse_args()
 
     @classmethod
