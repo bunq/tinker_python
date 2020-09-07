@@ -13,7 +13,7 @@ from bunq.sdk.exception.bunq_exception import BunqException
 from bunq.sdk.exception.forbidden_exception import ForbiddenException
 from bunq.sdk.model.core.notification_filter_url_user_internal import NotificationFilterUrlUserInternal
 from bunq.sdk.model.generated.endpoint import UserCompany, UserPerson, MonetaryAccountBank, UserLight, User, Payment, \
-    RequestInquiry, Card, NotificationFilterUrlUser, SandboxUser
+    RequestInquiry, Card, NotificationFilterUrlUser, SandboxUserPerson
 from bunq.sdk.model.generated.object_ import Amount, NotificationFilterUrl
 from bunq.sdk.model.generated.object_ import CardPinAssignment
 from bunq.sdk.model.generated.object_ import Pointer
@@ -24,10 +24,8 @@ NOTIFICATION_CATEGORY_MUTATION = 'MUTATION'
 
 
 class BunqLib(object):
-    _ERROR_COULD_NOT_DETERMINE_CONF = 'Could not find the bunq configuration' \
-                                      ' file.'
-    _ERROR_COULD_NOT_CREATE_NEW_SANDBOX_USER = "Could not create new sandbox" \
-                                               " user."
+    _ERROR_COULD_NOT_DETERMINE_CONF = 'Could not find the bunq configuration file.'
+    _ERROR_COULD_NOT_CREATE_NEW_SANDBOX_USER = "Could not create new sandbox user."
     _BUNQ_CONF_PRODUCTION = 'bunq-production.conf'
     _BUNQ_CONF_SANDBOX = 'bunq-sandbox.conf'
 
@@ -186,7 +184,7 @@ class BunqLib(object):
     def get_all_user_alias(self) -> List[Pointer]:
         return self.get_current_user().alias
 
-    def generate_new_sandbox_user(self) -> SandboxUser: # TODO: Change this to relevant SandboxUserPerson/Company on SDK V1.14.x
+    def generate_new_sandbox_user(self) -> SandboxUserPerson:
         url = ApiEnvironmentType.SANDBOX.uri_base + "sandbox-user-person"
 
         headers = {
@@ -201,8 +199,7 @@ class BunqLib(object):
 
         if response.status_code is 200:
             response_json = json.loads(response.text)
-            return SandboxUser.from_json(
-                json.dumps(response_json["Response"][0]["ApiKey"]))
+            return SandboxUserPerson.from_json(json.dumps(response_json["Response"][0]["ApiKey"]))
 
         raise BunqException(self._ERROR_COULD_NOT_CREATE_NEW_SANDBOX_USER)
 
