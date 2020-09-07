@@ -1,11 +1,12 @@
 import argparse
 import os
 import sys
+from typing import Union, List
 
-from bunq.sdk.context import ApiEnvironmentType
-from bunq.sdk.exception import BunqException
-from bunq.sdk.model.generated import endpoint
-from bunq.sdk.model.generated import object_
+from bunq import ApiEnvironmentType
+from bunq.sdk.exception.bunq_exception import BunqException
+from bunq.sdk.model.generated.endpoint import UserPerson, UserCompany, UserLight, MonetaryAccountBank, Card
+from bunq.sdk.model.generated.object_ import Pointer, LabelMonetaryAccount
 
 
 class ShareLib(object):
@@ -56,11 +57,7 @@ class ShareLib(object):
         return parser.parse_args()
 
     @classmethod
-    def determine_environment_type_from_all_option(cls, all_option):
-        """
-        :rtype: ApiEnvironmentType
-        """
-
+    def determine_environment_type_from_all_option(cls, all_option) -> ApiEnvironmentType:
         if all_option.production:
             cls.environment_type = ApiEnvironmentType.PRODUCTION
         else:
@@ -69,11 +66,7 @@ class ShareLib(object):
         return cls.environment_type
 
     @classmethod
-    def determine_amount_from_all_option_or_std_in(cls, all_option):
-        """
-        :rtype: str
-        """
-
+    def determine_amount_from_all_option_or_std_in(cls, all_option) -> str:
         if all_option.amount:
             return all_option.amount
         else:
@@ -82,11 +75,7 @@ class ShareLib(object):
             return sys.stdin.readline().strip()
 
     @classmethod
-    def determine_description_from_all_option_or_std_in(cls, all_option):
-        """
-        :rtype: str
-        """
-
+    def determine_description_from_all_option_or_std_in(cls, all_option) -> str:
         if all_option.description:
             return all_option.description
         else:
@@ -95,11 +84,7 @@ class ShareLib(object):
             return sys.stdin.readline().strip()
 
     @classmethod
-    def determine_recipient_from_all_option_or_std_in(cls, all_option):
-        """
-        :rtype: str
-
-        """
+    def determine_recipient_from_all_option_or_std_in(cls, all_option) -> str:
         if all_option.recipient:
             return all_option.recipient
         else:
@@ -112,11 +97,7 @@ class ShareLib(object):
             return sys.stdin.readline().strip()
 
     @classmethod
-    def determine_card_id_from_all_option_or_std_in(cls, all_option):
-        """
-        :rtype: str
-        """
-
+    def determine_card_id_from_all_option_or_std_in(cls, all_option) -> str:
         if all_option.card_id:
             return all_option.card_id
         else:
@@ -125,11 +106,7 @@ class ShareLib(object):
             return sys.stdin.readline().strip()
 
     @classmethod
-    def determine_account_id_from_all_option_or_std_in(cls, all_option):
-        """
-        :rtype: str
-        """
-
+    def determine_account_id_from_all_option_or_std_in(cls, all_option) -> str:
         if all_option.account_id:
             return all_option.account_id
         else:
@@ -138,11 +115,7 @@ class ShareLib(object):
             return sys.stdin.readline().strip()
 
     @classmethod
-    def determine_callback_url_from_all_option_or_std_in(cls, all_option):
-        """
-        :rtype: str
-        """
-
+    def determine_callback_url_from_all_option_or_std_in(cls, all_option) -> str:
         if all_option.callback_url:
             return all_option.callback_url
         else:
@@ -151,11 +124,7 @@ class ShareLib(object):
         pass
 
     @classmethod
-    def determine_name_from_all_option_or_std_in(cls, all_option):
-        """
-        :rtype: str
-        """
-
+    def determine_name_from_all_option_or_std_in(cls, all_option) -> str:
         if all_option.name:
             return all_option.name
         else:
@@ -190,12 +159,7 @@ class ShareLib(object):
             """)
 
     @classmethod
-    def print_user(cls, user):
-        """
-
-        :param user: UserPerson|UserCompany|UserLight
-        """
-
+    def print_user(cls, user: Union[UserPerson, UserCompany, UserLight]):
         print(cls._ECHO_USER)
         print(f'''
   ┌───────────────────┬────────────────────────────────────────────────────
@@ -205,22 +169,14 @@ class ShareLib(object):
   └───────────────────┴────────────────────────────────────────────────────''')
 
     @classmethod
-    def print_all_monetary_account_bank(cls, all_monetary_account_bank):
-        """
-        :type all_monetary_account_bank: list[endpoint.MonetaryAccountBank]
-        """
-
+    def print_all_monetary_account_bank(cls, all_monetary_account_bank: List[MonetaryAccountBank]):
         print(cls._ECHO_MONETARY_ACCOUNT)
 
         for monetary_account_bank in all_monetary_account_bank:
             cls.print_monetary_account_bank(monetary_account_bank)
 
     @classmethod
-    def print_monetary_account_bank(cls, monetary_account_bank):
-        """
-        :param monetary_account_bank: MonetaryAccountBank
-        """
-
+    def print_monetary_account_bank(cls, monetary_account_bank: MonetaryAccountBank):
         pointer_iban = cls.get_first_pointer_iban(monetary_account_bank)
 
         print(f'''
@@ -239,11 +195,7 @@ class ShareLib(object):
             f'  └───────────────────┴────────────────────────────────────────────────────')
 
     @classmethod
-    def get_first_pointer_iban(cls, monetary_account_bank):
-        """
-        :rtype: object_.Pointer
-        """
-
+    def get_first_pointer_iban(cls, monetary_account_bank) -> Pointer:
         for alias in monetary_account_bank.alias:
             if alias.type_ == cls._POINTER_TYPE_IBAN:
                 return alias
@@ -253,7 +205,7 @@ class ShareLib(object):
     @classmethod
     def print_all_payment(cls, all_payment):
         """
-        :type all_payment: list[endpoint.Payment]
+        :type all_payment: list[Payment]
         """
 
         print(cls._ECHO_PAYMENT)
@@ -264,7 +216,7 @@ class ShareLib(object):
     @classmethod
     def print_payment(cls, payment):
         """
-        :type payment: endpoint.Payment
+        :type payment: Payment
         """
 
         print(f'''
@@ -281,7 +233,7 @@ class ShareLib(object):
     @classmethod
     def print_all_request(cls, all_request):
         """
-        :type all_request: list[endpoint.RequestInquiry]
+        :type all_request: list[RequestInquiry]
         """
 
         print(cls._ECHO_REQUEST)
@@ -292,7 +244,7 @@ class ShareLib(object):
     @classmethod
     def print_request(cls, request):
         """
-        :type request: endpoint.RequestInquiry
+        :type request: RequestInquiry
         """
 
         print(f'''
@@ -311,8 +263,8 @@ class ShareLib(object):
     @classmethod
     def print_all_card(cls, all_card, all_monetary_account):
         """
-        :param all_card: list(endpoint.Card)
-        :param all_monetary_account: list[endpoint.MonetaryAccountBank]
+        :param all_card: list(Card)
+        :param all_monetary_account: list[MonetaryAccountBank]
         """
 
         print(cls._ECHO_CARD)
@@ -321,12 +273,7 @@ class ShareLib(object):
             cls.print_card(card, all_monetary_account)
 
     @classmethod
-    def print_card(cls, card, all_monetary_account):
-        """
-        :type card: endpoint.Card
-        :type all_monetary_account: list[endpoint.MonetaryAccountBank]
-        """
-
+    def print_card(cls, card: Card, all_monetary_account: List[MonetaryAccountBank]):
         if card.label_monetary_account_current is None:
             linked_account = 'No account linked yet.'
         else:
@@ -335,7 +282,7 @@ class ShareLib(object):
                 all_monetary_account
             )
             linked_account = f'{monetary_account.description} ' \
-                f'({card.label_monetary_account_current.label_monetary_account.iban})'
+                             f'({card.label_monetary_account_current.label_monetary_account.iban})'
 
         print(f'''
   ┌───────────────────┬────────────────────────────────────────────────────
@@ -351,13 +298,8 @@ class ShareLib(object):
   └───────────────────┴────────────────────────────────────────────────────''')
 
     @classmethod
-    def get_monetary_account_from_label(cls, label_monetary_account_current,
-                                        all_monetary_account):
-        """
-        :type label_monetary_account_current: object_.LabelMonetaryAccount
-        :type all_monetary_account: list[endpoint.MonetaryAccountBank]
-        """
-
+    def get_monetary_account_from_label(cls, label_monetary_account_current: LabelMonetaryAccount,
+                                        all_monetary_account: List[MonetaryAccountBank]):
         iban_label = label_monetary_account_current.iban
 
         for monetary_account in all_monetary_account:
@@ -370,13 +312,8 @@ class ShareLib(object):
         return None
 
     @staticmethod
-    def print_all_user_alias(all_user_alias):
-        """
-        :type all_user_alias: list[object_.Pointer]
-        """
-
-        print("\n" + "   You can use these login credentials to login in to "
-                     "the bunq sandbox app.")
+    def print_all_user_alias(all_user_alias: List[Pointer]):
+        print("\n" + "   You can use these login credentials to login in to the bunq sandbox app.")
 
         for alias in all_user_alias:
             print(f'''
