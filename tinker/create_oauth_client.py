@@ -1,4 +1,5 @@
 #!.venv/bin/python -W ignore
+import argparse
 import os
 
 from bunq.sdk.context.api_context import ApiContext
@@ -9,12 +10,16 @@ from bunq.sdk.model.core.oauth_authorization_uri import OauthAuthorizationUri
 from bunq.sdk.model.core.oauth_response_type import OauthResponseType
 from bunq.sdk.model.generated.endpoint import OauthClient, OauthCallbackUrl
 
-# File constants.
 from libs.share_lib import ShareLib
 
+# File constants.
 FILE_OAUTH_CONFIGURATION = 'oauth.conf'
 FILE_MODE_WRITE = 'w'
 FILE_MODE_READ = 'r'
+
+# Option constants.
+OPTION_CONTEXT = '--context'
+OPTION_REDIRECT_URI = '--redirect'
 
 # Error constants.
 ERROR_OPTION_MISSING_CONTEXT = 'Missing mandatory option "--context [API context]"'
@@ -22,7 +27,10 @@ ERROR_OPTION_MISSING_REDIRECT = 'Missing mandatory option "--redirect [redirect 
 
 
 def main():
-    all_option = ShareLib.parse_all_option()
+    parser = argparse.ArgumentParser()
+    parser.add_argument(OPTION_CONTEXT)
+    parser.add_argument(OPTION_REDIRECT_URI)
+    all_option = parser.parse_args()
 
     if all_option.context is None:
         raise BunqException(ERROR_OPTION_MISSING_CONTEXT)
