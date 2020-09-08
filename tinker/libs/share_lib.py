@@ -54,6 +54,7 @@ class ShareLib(object):
         parser.add_argument(cls._OPTION_ACCOUNT_ID)
         parser.add_argument(cls._OPTION_CALLBACK_URL)
         parser.add_argument(cls._OPTION_NAME)
+
         return parser.parse_args()
 
     @classmethod
